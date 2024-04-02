@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Dioráma</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script>
+        // Inicializace Three.js scény
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(25, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 10; // Přiblížení kamery
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('myCanvas') });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Vytvoření slunce
+        const sun = createPlanet(1, 0xffff00, new THREE.Vector3(0, 0, 0));
+
+        // Vytvoření "měsíce"
+        const moon = createPlanet(0.5, 0x808080, new THREE.Vector3(3, 0, 0));
+        // Vytvoření světla
+        const light = new THREE.PointLight(0xffffff, 1, 1000);
+        light.position.set(50, 50, 50);
+        scene.add(light);
+
+        // Funkce pro vytvoření planety
+        function createPlanet(radius, color, position) {
+            const geometry = new THREE.SphereGeometry(radius, 32, 32);
+            const material = new THREE.MeshBasicMaterial({ color: color });
+            const planet = new THREE.Mesh(geometry, material);
+            planet.position.set(position.x, position.y, position.z);
+            scene.add(planet);
+            return planet;
+        }
+
+        // Pole pro všechny planety
+        const planets = [sun, moon];
+
+        // Animace
+        function animate() {
+            requestAnimationFrame(animate);
+            planets.forEach(planet => {
+                planet.rotation.y += 0.01; // Otáčení planet kolem osy Y
+            });
+            moon.position.x = 3 * Math.cos(Date.now() * 0.0005); // Otáčení "měsíce" kolem slunce
+            moon.position.z = 3 * Math.sin(Date.now() * 0.0005); // Otáčení "měsíce" kolem slunce
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Přidání interaktivity s p5.js
+        function mousePressed() {
+            // Změna barvy slunce na náhodnou
+            const randomColor = Math.floor(Math.random() * 16777215);
+            sun.material.color.setHex(randomColor);
+        }
+    </script>
+</body>
+</html>
